@@ -14,7 +14,8 @@ func NewMockMessenger() *MockMessenger {
 }
 
 func (m *MockMessenger) SendMessage(to string, message string) error {
-	log.Println("\n" + message)
+	log.Println("Sending Message to:" + to)
+	log.Println("Message:\n" + message)
 
 	return nil
 }
