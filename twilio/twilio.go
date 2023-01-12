@@ -12,6 +12,7 @@ import (
 
 var TWILIO_ACCOUNT_SID string
 var TWILIO_API_TOKEN string
+var TWILIO_MESSAGE_SERVICE_ID string
 
 type Twilio struct {
 }
@@ -26,11 +27,9 @@ func (t *Twilio) SendMessage(to string, message string) error {
 		Password: TWILIO_API_TOKEN,
 	})
 
-	messageServiceSid := "MG63c20f9642f9026531963601ce237dd4"
-
 	params := &twilioApi.CreateMessageParams{}
 	params.SetTo(to)
-	params.SetMessagingServiceSid(messageServiceSid)
+	params.SetMessagingServiceSid(TWILIO_MESSAGE_SERVICE_ID)
 	params.SetBody(message)
 
 	log.Println("Sending message to:", to)
@@ -49,4 +48,5 @@ func (t *Twilio) SendMessage(to string, message string) error {
 func init() {
 	TWILIO_ACCOUNT_SID = os.Getenv("TWILIO_ACCOUNT_SID")
 	TWILIO_API_TOKEN = os.Getenv("TWILIO_API_TOKEN")
+	TWILIO_MESSAGE_SERVICE_ID = os.Getenv("TWILIO_MESSAGE_SERVICE_ID")
 }

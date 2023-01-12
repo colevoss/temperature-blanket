@@ -1,15 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"math"
 	"time"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/colevoss/temperature-blanket/messenger"
 	"github.com/colevoss/temperature-blanket/synoptic"
-
-	// "github.com/colevoss/temperature-blanket/twilio"
+	"github.com/colevoss/temperature-blanket/twilio"
 	"github.com/colevoss/temperature-blanket/weather"
 )
 
@@ -49,12 +50,16 @@ func (t *temperatureBlanket) DoIt() {
 	}
 }
 
-func main() {
+func Handler(ctx context.Context) {
 	synopticApi := synoptic.New()
-	// m := twilio.New()
-	m := messenger.NewMockMessenger()
+	m := twilio.New()
+	// m := messenger.NewMockMessenger()
 
 	blanket := NewTemperatureBlanket(synopticApi, m)
 
 	blanket.DoIt()
+}
+
+func main() {
+	lambda.Start(Handler)
 }

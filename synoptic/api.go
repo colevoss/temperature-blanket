@@ -69,6 +69,9 @@ func (s *SynopticApi) GetPreviousDaysWeatherInfo(day time.Time) (*weather.Weathe
 	return weatherInfo, nil
 }
 
+/**
+ * Given a day, return 00:00 and 23:59 of the previous day
+ */
 func (s *SynopticApi) GetPreviousDay(day time.Time) (time.Time, time.Time) {
 	tz, err := time.LoadLocation("America/Chicago")
 
@@ -95,6 +98,10 @@ func (s *SynopticApi) GetPreviousDay(day time.Time) (time.Time, time.Time) {
 	return startOfYesterday, endOfYesterday
 }
 
+/**
+ * Makes request to get temperature data
+ * @see https://developers.synopticdata.com/mesonet/v2/stations/timeseries/
+ */
 func (s *SynopticApi) GetTemparatureData(start time.Time, end time.Time) (*SynopticTimeSeriesResponse, error) {
 	url, err := url.Parse("https://api.synopticdata.com/v2/stations/timeseries")
 
@@ -108,8 +115,6 @@ func (s *SynopticApi) GetTemparatureData(start time.Time, end time.Time) (*Synop
 	query.Add("token", SYNOPTIC_API_TOKEN)
 	query.Add("stid", "klnk")
 	query.Add("vars", "air_temp")
-
-	// start, end := s.GetYesterday()
 
 	log.Printf("Date: %v - %v", start, end)
 
