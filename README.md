@@ -44,22 +44,10 @@ Currently this lambda is manually deployed using the AWS Lambda console
 
 ## Env Variables
 
-### `SYNOPTIC_API_TOKEN`
+The following environment variables are necessary for the lambda to function properly
 
-Private API token for access to the Synoptic weather API
-
-### `TWILIO_ACCOUNT_SID`
-
-Twilio account ID
-
-### `TWILIO_API_TOKEN`
-
-Private Twilio API Token
-
-### `TWILIO_MESSAGE_SERVICE_ID`
-
-Twilio Temperature Blanket Message Service ID
-
-### `TB_PHONE_NUMBERS`
-
-Comma delimited list of phone numbers to send the text to
+* `SYNOPTIC_API_TOKEN` - Private API token for access to the Synoptic weather API
+* `TWILIO_ACCOUNT_SID` - Twilio account ID
+* `TWILIO_API_TOKEN` - Private Twilio API Token
+* `TWILIO_MESSAGE_SERVICE_ID` - Twilio Temperature Blanket Message Service ID
+* `TB_PHONE_NUMBERS` - Comma delimited list of phone numbers to send the text to
