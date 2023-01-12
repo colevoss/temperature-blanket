@@ -8,6 +8,8 @@ import (
 	"net/url"
 	"os"
 	"time"
+
+	"github.com/colevoss/temperature-blanket/weather"
 )
 
 var SYNOPTIC_API_TOKEN string
@@ -16,19 +18,66 @@ var SYNOPTIC_API_URL *url.URL
 type SynopticApi struct {
 }
 
-// func FormatDate(t time.Time) string {
-//   fmt.Sprintf("%d", t.Year())
-// }
+func New() *SynopticApi {
+	return &SynopticApi{}
+}
 
-func GetYesterday() (time.Time, time.Time) {
+func (s *SynopticApi) GetPreviousDaysWeatherInfo(day time.Time) (*weather.WeatherInfo, error) {
+	start, end := s.GetPreviousDay(day)
+
+	timeseriesData, err := s.GetTemparatureData(start.UTC(), end.UTC())
+
+	if err != nil {
+		return nil, err
+	}
+
+	station := timeseriesData.Station[0]
+	temps := station.Observations.AirTemp
+
+	total := 0.0
+	high := 0.0
+	low := 0.0
+
+	for i, temp := range temps {
+		fTemp := weather.CelciusToFahrenheit(temp)
+
+		if i == 0 {
+			high = fTemp
+			low = fTemp
+		}
+
+		if fTemp > high {
+			high = fTemp
+		}
+
+		if fTemp < low {
+			low = fTemp
+		}
+
+		total += fTemp
+	}
+
+	avg := total / float64(len(temps))
+
+	weatherInfo := &weather.WeatherInfo{
+		Date:    start,
+		High:    high,
+		Low:     low,
+		Average: avg,
+	}
+
+	return weatherInfo, nil
+}
+
+func (s *SynopticApi) GetPreviousDay(day time.Time) (time.Time, time.Time) {
 	tz, err := time.LoadLocation("America/Chicago")
 
 	if err != nil {
 		log.Fatalf("Cannot load timezone %s", err)
 	}
 
-	now := time.Now()
-	yesterday := now.Add(time.Hour * -24)
+	// now := time.Now()
+	yesterday := day.Add(time.Hour * -24)
 
 	startOfYesterday := time.Date(
 		yesterday.Year(),
@@ -43,10 +92,10 @@ func GetYesterday() (time.Time, time.Time) {
 
 	endOfYesterday := startOfYesterday.Add(time.Hour * 23).Add(time.Minute * 59)
 
-	return startOfYesterday.UTC(), endOfYesterday.UTC()
+	return startOfYesterday, endOfYesterday
 }
 
-func GetTemparatureData() (*SynopticTimeSeriesResponse, error) {
+func (s *SynopticApi) GetTemparatureData(start time.Time, end time.Time) (*SynopticTimeSeriesResponse, error) {
 	url, err := url.Parse("https://api.synopticdata.com/v2/stations/timeseries")
 
 	if err != nil {
@@ -60,7 +109,9 @@ func GetTemparatureData() (*SynopticTimeSeriesResponse, error) {
 	query.Add("stid", "klnk")
 	query.Add("vars", "air_temp")
 
-	start, end := GetYesterday()
+	// start, end := s.GetYesterday()
+
+	log.Printf("Date: %v - %v", start, end)
 
 	// See format docs here https://pkg.go.dev/time#Time.Format
 	formattedStart := start.Format("200601021504")
@@ -99,7 +150,7 @@ func GetTemparatureData() (*SynopticTimeSeriesResponse, error) {
 	}
 
 	// log.Printf("%v", timeSeriesResponse.Station[0].Observations.DateTime[0])
-	log.Printf("%v", timeSeriesResponse.Station[0].Name)
+	// log.Printf("%v", timeSeriesResponse.Station[0].Name)
 
 	return &timeSeriesResponse, nil
 }
